@@ -44,24 +44,41 @@ const Login = () => {
                 setMessage('Login successful!')
                 setMessageType('success')
 
-                // Extract user data from the response
-                const userData = {
-                    id: responseData.data?.id,
-                    userName: responseData.data?.userName,
-                    email: responseData.data?.email,
-                    firstName: responseData.data?.firstName,
-                    lastName: responseData.data?.lastName,
-                    role: responseData.data?.role
-                };
+                // The API returns JWT token in data field, we need to decode it
+                const token = responseData.data;
+                
+                // Decode JWT to get user information
+                let userData = {};
+                let userRole = '';
+                
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    userData = {
+                        id: payload.nameid,
+                        email: payload.email,
+                        role: payload.role,
+                        // Since API doesn't provide firstName/lastName, we'll use email username part
+                        firstName: payload.email.split('@')[0],
+                        userName: payload.email.split('@')[0]
+                    };
+                    userRole = payload.role;
+                } catch (error) {
+                    console.error('Error decoding JWT:', error);
+                    // Fallback to basic data
+                    userData = {
+                        email: email,
+                        userName: email.split('@')[0],
+                        firstName: email.split('@')[0]
+                    };
+                    userRole = 'Patient'; // Default role
+                }
 
-                const token = responseData.data?.token;
-                const userRole = responseData.data?.role;
-
-                // Log in with updated data
+                // Log in with decoded data
                 login(userData, token, userRole);
                 setAuth(true);
                 
                 console.log('Login successful:', responseData);
+                console.log('Decoded user data:', userData);
 
                 // Redirect based on user role
                 setTimeout(() => {

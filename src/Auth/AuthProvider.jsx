@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [userRole, setUserRole] = useState(null); // Add user role state
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("userName");
+        const storedUser = localStorage.getItem("userData");
         const storedToken = localStorage.getItem("authToken");
         const storedRole = localStorage.getItem("userRole");
         
